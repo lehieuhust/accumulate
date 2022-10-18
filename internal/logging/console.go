@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
-	"github.com/tendermint/tendermint/libs/log"
 )
 
 // NewConsoleWriter parses the log format and creates an appropriate writer.
@@ -19,10 +18,10 @@ func NewConsoleWriter(format string) (io.Writer, error) {
 
 func NewConsoleWriterWith(w io.Writer, format string) (io.Writer, error) {
 	switch strings.ToLower(format) {
-	case log.LogFormatPlain, log.LogFormatText:
+	case "plain", "text":
 		return newConsoleWriter(w), nil
 
-	case log.LogFormatJSON:
+	case "json":
 		return w, nil
 
 	default:

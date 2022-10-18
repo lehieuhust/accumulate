@@ -12,7 +12,6 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/libs/log"
 	"gitlab.com/accumulatenetwork/accumulate/config"
 	"gitlab.com/accumulatenetwork/accumulate/internal/accumulated"
 	"gitlab.com/accumulatenetwork/accumulate/internal/testing"
@@ -200,7 +199,7 @@ var partitionColor = map[string]*color.Color{}
 
 func newNodeWriter(w io.Writer, format, partition string, node int, color bool) io.Writer {
 	switch format {
-	case log.LogFormatPlain, log.LogFormatText:
+	case "plain", "text":
 		id := fmt.Sprintf("%s.%d", partition, node)
 		s := fmt.Sprintf("[%s]", id) + strings.Repeat(" ", nodeIdLen+len("bvnxx")-len(id)+1)
 		if !color {
@@ -220,7 +219,7 @@ func newNodeWriter(w io.Writer, format, partition string, node int, color bool) 
 		s = c.Sprint(s)
 		return &plainNodeWriter{s, w}
 
-	case log.LogFormatJSON:
+	case "json":
 		s := fmt.Sprintf(`"partition":"%s","node":%d`, partition, node)
 		return &jsonNodeWriter{s, w}
 

@@ -18,8 +18,8 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	protocrypto "github.com/tendermint/tendermint/proto/tendermint/crypto"
 	rpc "github.com/tendermint/tendermint/rpc/client"
-	core "github.com/tendermint/tendermint/rpc/coretypes"
-	ctypes "github.com/tendermint/tendermint/rpc/coretypes"
+	core "github.com/tendermint/tendermint/rpc/core/types"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	"github.com/tendermint/tendermint/types"
 	"gitlab.com/accumulatenetwork/accumulate/config"
 	"gitlab.com/accumulatenetwork/accumulate/internal/chain"
@@ -52,7 +52,7 @@ type FakeTendermint struct {
 	txActive int
 	isEvil   bool
 
-	syncInfo core.SyncInfo
+	syncInfo ctypes.SyncInfo
 }
 
 type txStatus struct {
@@ -405,12 +405,12 @@ func (c *FakeTendermint) BroadcastTxSync(ctx context.Context, tx types.Tx) (*cty
 	}
 
 	return &ctypes.ResultBroadcastTx{
-		Code:         st.CheckResult.Code,
-		Data:         st.CheckResult.Data,
-		Log:          st.CheckResult.Log,
-		Codespace:    st.CheckResult.Codespace,
-		MempoolError: st.CheckResult.MempoolError,
-		Hash:         st.Hash[:],
+		Code:      st.CheckResult.Code,
+		Data:      st.CheckResult.Data,
+		Log:       st.CheckResult.Log,
+		Codespace: st.CheckResult.Codespace,
+		// MempoolError: st.CheckResult.MempoolError,
+		Hash: st.Hash[:],
 	}, nil
 }
 

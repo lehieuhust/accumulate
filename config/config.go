@@ -144,7 +144,7 @@ func Default(netName string, net NetworkType, node NodeType, partitionId string)
 	// c.Accumulate.Snapshots.Frequency = 2
 	switch node {
 	case Validator:
-		c.Config = *tm.DefaultValidatorConfig()
+		// c.Config = *tm.DefaultValidatorConfig()
 	default:
 		c.Config = *tm.DefaultConfig()
 	}
@@ -314,10 +314,10 @@ func loadFile(dir, tmFile, accFile string) (*Config, error) {
 }
 
 func Store(config *Config) error {
-	err := config.Config.WriteToTemplate(filepath.Join(config.RootDir, configDir, tmConfigFile))
-	if err != nil {
-		return err
-	}
+	// err := config.Config.WriteToTemplate(filepath.Join(config.RootDir, configDir, tmConfigFile))
+	// if err != nil {
+	// 	return err
+	// }
 
 	f, err := os.Create(filepath.Join(config.RootDir, configDir, accConfigFile))
 	if err != nil {

@@ -4,13 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	abciclient "github.com/tendermint/tendermint/abci/client"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/tendermint/tendermint/libs/service"
 	nm "github.com/tendermint/tendermint/node"
 	"github.com/tendermint/tendermint/privval"
-	coretypes "github.com/tendermint/tendermint/rpc/coretypes"
+	coretypes "github.com/tendermint/tendermint/rpc/core/types"
 	corerpc "github.com/tendermint/tendermint/rpc/jsonrpc/client"
 	"gitlab.com/accumulatenetwork/accumulate/config"
 )
@@ -35,7 +34,7 @@ func New(config *config.Config, app abci.Application, logger log.Logger) (*Node,
 
 	// create node
 	var err error
-	node.Service, err = nm.New(&config.Config, logger, abciclient.NewLocalCreator(app), nil)
+	node.Service, err = nm.DefaultNewNode(&config.Config, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new Tendermint node: %w", err)
 	}

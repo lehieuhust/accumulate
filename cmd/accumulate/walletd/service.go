@@ -11,7 +11,6 @@ import (
 
 	"github.com/kardianos/service"
 	"github.com/rs/zerolog"
-	"github.com/tendermint/tendermint/libs/log"
 	"gitlab.com/accumulatenetwork/accumulate/internal/logging"
 )
 
@@ -63,7 +62,7 @@ func NewLogWriter(s service.Service, logFilename, jsonLogFilename string) func(s
 		if logFile != nil {
 			w := io.Writer(logFile)
 			if annotate != nil {
-				w = annotate(w, log.LogFormatText, false)
+				w = annotate(w, "text", false)
 			}
 			writers = append(writers, &zerolog.ConsoleWriter{
 				Out:        w,
@@ -81,7 +80,7 @@ func NewLogWriter(s service.Service, logFilename, jsonLogFilename string) func(s
 		if jsonLogFile != nil {
 			w := io.Writer(jsonLogFile)
 			if annotate != nil {
-				w = annotate(w, log.LogFormatJSON, false)
+				w = annotate(w, "json", false)
 			}
 			writers = append(writers, w)
 		}

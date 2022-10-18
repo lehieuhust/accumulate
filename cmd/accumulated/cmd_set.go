@@ -201,11 +201,10 @@ func submitTransactionWithNode(cfg *config.Config, client *client.Client, transa
 	_, err := client.QueryAccountAs(context.Background(), req, signer)
 	checkf(err, "get signer")
 
-	pv, err := privval.LoadFilePV(
-		cfg.PrivValidator.KeyFile(),
-		cfg.PrivValidator.StateFile(),
+	pv := privval.LoadFilePV(
+		cfg.PrivValidatorKeyFile(),
+		cfg.PrivValidatorStateFile(),
 	)
-	checkf(err, "load private validator")
 
 	signature, err := new(signing.Builder).
 		UseSimpleHash().

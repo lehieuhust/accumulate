@@ -120,11 +120,10 @@ func InitFake(t *testing.T, d *accumulated.Daemon, openDb func(d *accumulated.Da
 		errorHandler = NewDefaultErrorHandler(t)
 	}
 
-	pv, err := privval.LoadFilePV(
-		d.Config.PrivValidator.KeyFile(),
-		d.Config.PrivValidator.StateFile(),
+	pv := privval.LoadFilePV(
+		d.Config.PrivValidatorKeyFile(),
+		d.Config.PrivValidatorStateFile(),
 	)
-	require.NoError(t, err)
 
 	n := new(FakeNode)
 	n.t = t
@@ -138,6 +137,7 @@ func InitFake(t *testing.T, d *accumulated.Daemon, openDb func(d *accumulated.Da
 		}
 	}
 
+	var err error
 	n.db, err = openDb(d)
 	require.NoError(t, err)
 	batch := n.db.Begin(false)

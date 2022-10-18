@@ -3,7 +3,8 @@ package routing
 import (
 	"context"
 
-	core "github.com/tendermint/tendermint/rpc/coretypes"
+	abci "github.com/tendermint/tendermint/abci/types"
+	core "github.com/tendermint/tendermint/rpc/core/types"
 	"gitlab.com/accumulatenetwork/accumulate/internal/connections"
 	"gitlab.com/accumulatenetwork/accumulate/internal/errors"
 	"gitlab.com/accumulatenetwork/accumulate/internal/events"
@@ -34,6 +35,7 @@ type ResponseSubmit struct {
 // submit calls the appropriate client method to submit a transaction.
 func submit(ctx context.Context, connMgr connections.ConnectionManager, partitionId string, tx []byte, async bool) (*ResponseSubmit, error) {
 	var r1 *core.ResultBroadcastTx
+	var checkTxRes *abci.ResponseCheckTx
 	errorCnt := 0
 	for {
 		connCtx, err := connMgr.SelectConnection(partitionId, false)
@@ -51,7 +53,7 @@ func submit(ctx context.Context, connMgr connections.ConnectionManager, partitio
 			r2.Code = r1.Code
 			r2.Data = r1.Data
 			r2.Log = r1.Log
-			r2.MempoolError = r1.MempoolError
+			r2.MempoolError = checkTxRes.MempoolError
 			return r2, nil
 		}
 

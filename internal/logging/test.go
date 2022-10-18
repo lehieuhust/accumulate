@@ -37,10 +37,10 @@ func TestLogWriter(t TB) func(string) (io.Writer, error) {
 	return func(format string) (io.Writer, error) {
 		var w io.Writer = &testLogger{Test: t}
 		switch strings.ToLower(format) {
-		case log.LogFormatPlain, log.LogFormatText:
+		case "plain", "text":
 			w = newConsoleWriter(w)
 
-		case log.LogFormatJSON:
+		case "json":
 
 		default:
 			t.Fatalf("Unsupported log format: %s", format)

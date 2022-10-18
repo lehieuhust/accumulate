@@ -14,10 +14,10 @@ import (
 	"github.com/fatih/color"
 	"github.com/getsentry/sentry-go"
 	"github.com/rs/zerolog"
-	tmcfg "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto"
 	tmlog "github.com/tendermint/tendermint/libs/log"
 	service2 "github.com/tendermint/tendermint/libs/service"
+	nm "github.com/tendermint/tendermint/node"
 	"github.com/tendermint/tendermint/privval"
 	tmclient "github.com/tendermint/tendermint/rpc/client"
 	"github.com/tendermint/tendermint/rpc/client/local"
@@ -44,6 +44,7 @@ type Daemon struct {
 	done              chan struct{}
 	db                *database.Database
 	node              *node.Node
+	nodenm            *nm.Node
 	api               *http.Server
 	pv                *privval.FilePV
 	jrpc              *api.JrpcMethods
@@ -138,9 +139,9 @@ func (d *Daemon) Start() (err error) {
 	}()
 
 	// read private validator
-	d.pv, err = privval.LoadFilePV(
-		d.Config.PrivValidator.KeyFile(),
-		d.Config.PrivValidator.StateFile(),
+	d.pv = privval.LoadFilePV(
+		d.Config.PrivValidatorKeyFile(),
+		d.Config.PrivValidatorStateFile(),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to load private validator: %v", err)
@@ -160,7 +161,7 @@ func (d *Daemon) Start() (err error) {
 		Describe:         d.Config.Accumulate.Describe,
 		Router:           router,
 		EventBus:         d.eventBus,
-		IsFollower:       d.Config.Mode != tmcfg.ModeValidator,
+		// IsFollower:       d.Config.Mode != "validator",
 		BatchReplayLimit: d.Config.Accumulate.BatchReplayLimit,
 	}
 
@@ -200,7 +201,7 @@ func (d *Daemon) Start() (err error) {
 	defer func() {
 		if err != nil {
 			_ = d.node.Stop()
-			d.node.Wait()
+			d.nodenm.Wait()
 		}
 	}()
 
@@ -216,11 +217,8 @@ func (d *Daemon) Start() (err error) {
 	})
 
 	// Create a local client
-	lnode, ok := d.node.Service.(local.NodeService)
-	if !ok {
-		return fmt.Errorf("node is not a local node service")
-	}
-	d.localTm, err = local.New(lnode)
+	var node *nm.Node
+	d.localTm = local.New(node)
 	if err != nil {
 		return fmt.Errorf("failed to create local node client: %v", err)
 	}
@@ -294,7 +292,7 @@ func (d *Daemon) Start() (err error) {
 	go func() {
 		defer close(d.done)
 
-		d.node.Wait()
+		d.nodenm.Wait()
 
 		ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
 		defer cancel()

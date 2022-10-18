@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	nm "github.com/tendermint/tendermint/node"
 	"github.com/tendermint/tendermint/rpc/client/local"
 	apiv2 "gitlab.com/accumulatenetwork/accumulate/internal/api/v2"
 	"gitlab.com/accumulatenetwork/accumulate/internal/database"
@@ -27,8 +28,10 @@ func TestEndToEnd(t *testing.T) {
 		partitions, daemons := acctesting.CreateTestNet(s.T(), 3, 1, 0, false)
 		acctesting.RunTestNet(s.T(), partitions, daemons)
 		daemon := daemons[partitions[1]][0]
-		client, err := local.New(daemon.Node_TESTONLY().Service.(local.NodeService))
-		require.NoError(s.T(), err)
+		var node *nm.Node
+		client := local.New(node)
+		// client := local.New(daemon.Node_TESTONLY())
+		// require.NoError(s.T(), err)
 		return &e2eDUT{s, daemon.DB_TESTONLY(), daemon.Jrpc_TESTONLY(), client}
 	}))
 }
@@ -117,10 +120,11 @@ func TestSubscribeAfterClose(t *testing.T) {
 		}
 	}
 
-	daemon := daemons[protocol.Directory][0]
-	client, err := local.New(daemon.Node_TESTONLY().Service.(local.NodeService))
-	require.NoError(t, err)
-	_, err = client.Subscribe(context.Background(), t.Name(), "tm.event = 'Tx'")
+	// daemon := daemons[protocol.Directory][0]
+	var node *nm.Node
+	client := local.New(node)
+	// require.NoError(t, err)
+	_, err := client.Subscribe(context.Background(), t.Name(), "tm.event = 'Tx'")
 	require.EqualError(t, err, "failed to subscribe: service is shutting down")
 	time.Sleep(time.Millisecond) // Time for it to panic
 
