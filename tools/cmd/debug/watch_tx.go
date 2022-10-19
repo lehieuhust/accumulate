@@ -52,11 +52,11 @@ func watchTx(_ *cobra.Command, args []string) error {
 					data := e.Data.(types.EventDataTx)
 					fmt.Printf("[%s] code=%d log=%q", arg, data.Result.Code, data.Result.Log)
 					for _, e := range e.Events {
-						for _, a := range e.Attributes {
+						for _, a := range e {
 							// if e.Type == "tx" && a.Key == "hash" {
 							// 	a.Value = a.Value[:8]
 							// }
-							fmt.Printf(" %s.%s=%s", e.Type, a.Key, a.Value)
+							fmt.Printf(" %s", a)
 						}
 					}
 					fmt.Println()
