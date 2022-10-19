@@ -312,10 +312,7 @@ func loadFile(dir, tmFile, accFile string) (*Config, error) {
 }
 
 func Store(config *Config) error {
-	err := config.Config.WriteToTemplate(filepath.Join(config.RootDir, configDir, tmConfigFile))
-	if err != nil {
-		return err
-	}
+	tm.WriteConfigFile(filepath.Join(config.RootDir, configDir, tmConfigFile), &config.Config)
 
 	f, err := os.Create(filepath.Join(config.RootDir, configDir, accConfigFile))
 	if err != nil {
