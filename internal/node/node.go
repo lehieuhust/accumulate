@@ -35,7 +35,7 @@ func New(config *config.Config, app abci.Application, logger log.Logger) (*Node,
 
 	// create node
 	var err error
-	node.Service, err = nm.New(&config.Config, logger, abciclient.NewLocalCreator(app), nil)
+	node.Service, err = nm.NewNode(&config.Config, logger, abciclient.NewLocalCreator(app), nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new Tendermint node: %w", err)
 	}
