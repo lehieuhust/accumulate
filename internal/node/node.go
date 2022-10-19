@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	abciclient "github.com/tendermint/tendermint/abci/client"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/tendermint/tendermint/libs/service"
 	nm "github.com/tendermint/tendermint/node"
+	"github.com/tendermint/tendermint/p2p"
 	"github.com/tendermint/tendermint/privval"
+	pvm "github.com/tendermint/tendermint/privval"
+	"github.com/tendermint/tendermint/proxy"
 	coretypes "github.com/tendermint/tendermint/rpc/core/types"
 	corerpc "github.com/tendermint/tendermint/rpc/jsonrpc/client"
 	"gitlab.com/accumulatenetwork/accumulate/config"
@@ -35,7 +37,22 @@ func New(config *config.Config, app abci.Application, logger log.Logger) (*Node,
 
 	// create node
 	var err error
-	node.Service, err = nm.NewNode(&config.Config, logger, abciclient.NewLocalCreator(app), nil)
+	nodeKey, err := p2p.LoadOrGenNodeKey(config.NodeKeyFile())
+	if err != nil {
+		return nil, err
+	}
+	genDocProvider := nm.DefaultGenesisDocProviderFunc(&config.Config)
+	node.Service, err = nm.NewNode(
+		&config.Config,
+		pvm.LoadOrGenFilePV(config.PrivValidatorKeyFile(), config.Config.PrivValidatorStateFile()),
+		nodeKey,
+		proxy.NewLocalClientCreator(app),
+		genDocProvider,
+		nm.DefaultDBProvider,
+		nm.DefaultMetricsProvider(config.Instrumentation),
+		logger,
+	)
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new Tendermint node: %w", err)
 	}
