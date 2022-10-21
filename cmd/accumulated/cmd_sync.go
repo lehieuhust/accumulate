@@ -46,7 +46,7 @@ var cmdRestoreSnapshot = &cobra.Command{
 }
 
 func syncToSnapshot(_ *cobra.Command, args []string) {
-	client, err := http.New(args[0])
+	client, err := http.New(args[0], "/websocket")
 	checkf(err, "server")
 
 	height, err := strconv.ParseInt(args[1], 10, 64)

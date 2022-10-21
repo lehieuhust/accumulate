@@ -312,7 +312,7 @@ func initNodeFromSeedProxy(cmd *cobra.Command, args []string) (int, *cfg.Config,
 			return 0, nil, nil, fmt.Errorf("failed to parse url from network info %s, %v", addr, err)
 		}
 		//check the health of the peer
-		peerClient, err := rpchttp.New(fmt.Sprintf("tcp://%s:%s", u.Hostname(), u.Port()))
+		peerClient, err := rpchttp.New(fmt.Sprintf("tcp://%s:%s", u.Hostname(), u.Port()), "/websocket")
 		if err != nil {
 			return 0, nil, nil, fmt.Errorf("failed to create Tendermint client for %s, %v", u.String(), err)
 		}
@@ -424,7 +424,7 @@ func initNodeFromPeer(cmd *cobra.Command, args []string) (int, *cfg.Config, *typ
 		return 0, nil, nil, fmt.Errorf("failed to create API client for %s, %v", args[0], err)
 	}
 
-	tmClient, err := rpchttp.New(fmt.Sprintf("tcp://%s:%d", netAddr, netPort+int(cfg.PortOffsetTendermintRpc)))
+	tmClient, err := rpchttp.New(fmt.Sprintf("tcp://%s:%d", netAddr, netPort+int(cfg.PortOffsetTendermintRpc)), "/websocket")
 	if err != nil {
 		return 0, nil, nil, fmt.Errorf("failed to create Tendermint client for %s, %v", args[0], err)
 	}
@@ -472,7 +472,7 @@ func initNodeFromPeer(cmd *cobra.Command, args []string) (int, *cfg.Config, *typ
 
 		if !flagInitNode.AllowUnhealthyPeers {
 			//check the health of the peer
-			peerClient, err := rpchttp.New(clientUrl)
+			peerClient, err := rpchttp.New(clientUrl, "/websocket")
 			checkf(err, "failed to create Tendermint client for %s", u.String())
 
 			peerStatus, err := peerClient.Status(context.Background())

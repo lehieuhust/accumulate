@@ -16,7 +16,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/rpc/client/http"
-	"github.com/tendermint/tendermint/rpc/core/types"
+	coretypes "github.com/tendermint/tendermint/rpc/core/types"
 	"gitlab.com/accumulatenetwork/accumulate/config"
 	"gitlab.com/accumulatenetwork/accumulate/internal/core"
 	client "gitlab.com/accumulatenetwork/accumulate/pkg/client/api/v2"
@@ -94,7 +94,7 @@ func walkNetwork(addrs []string) (*core.GlobalValues, []*NodeData) {
 			if flag.Debug {
 				fmt.Printf("Tendermint status %s\n", addr)
 			}
-			tm, err := http.NewWithTimeout(addr, time.Second)
+			tm, err := http.NewWithTimeout(addr, "/websocket", uint(time.Second))
 			checkf(err, "new DNN TM client")
 
 			status, err := tm.Status(context.Background())
@@ -104,7 +104,7 @@ func walkNetwork(addrs []string) (*core.GlobalValues, []*NodeData) {
 				continue
 			}
 
-			nodeId, err := hex.DecodeString(string(status.NodeInfo.NodeID))
+			nodeId, err := hex.DecodeString(string(status.NodeInfo.DefaultNodeID))
 			checkf(err, "parse node ID")
 
 			valId, err := hex.DecodeString(status.ValidatorInfo.Address.String())
@@ -147,13 +147,13 @@ func walkNetwork(addrs []string) (*core.GlobalValues, []*NodeData) {
 			if flag.Debug {
 				fmt.Printf("Tendermint status %s\n", addr)
 			}
-			tm, err = http.New(addr)
+			tm, err = http.New(addr, "/websocket")
 			checkf(err, "new BVNN TM client")
 
 			status, err = tm.Status(context.Background())
 			checkf(err, "BVNN TM status")
 
-			nodeId, err = hex.DecodeString(string(status.NodeInfo.NodeID))
+			nodeId, err = hex.DecodeString(string(status.NodeInfo.DefaultNodeID))
 			checkf(err, "parse node ID")
 
 			n.BvnNodeID = *(*[20]byte)(nodeId)
