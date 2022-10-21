@@ -314,8 +314,8 @@ func WriteNodeFiles(cfg *config.Config, privValKey, nodeKey []byte, genDoc *tmty
 }
 
 func loadOrCreatePrivVal(config *config.Config, key []byte) error {
-	keyFile := config.PrivValidator.KeyFile()
-	stateFile := config.PrivValidator.StateFile()
+	keyFile := config.PrivValidatorKeyFile()
+	stateFile := config.PrivValidatorStateFile()
 	if !tmos.FileExists(keyFile) {
 		pv := privval.NewFilePV(ed25519.PrivKey(key), keyFile, stateFile)
 		pv.Save()

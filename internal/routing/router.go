@@ -10,7 +10,7 @@ import (
 	"context"
 
 	"github.com/tendermint/tendermint/libs/log"
-	core "github.com/tendermint/tendermint/rpc/coretypes"
+	core "github.com/tendermint/tendermint/rpc/core/types"
 	"gitlab.com/accumulatenetwork/accumulate/internal/connections"
 	"gitlab.com/accumulatenetwork/accumulate/internal/errors"
 	"gitlab.com/accumulatenetwork/accumulate/internal/events"

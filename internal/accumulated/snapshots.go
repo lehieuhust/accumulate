@@ -142,13 +142,10 @@ func (d *Daemon) LoadSnapshot(file ioutil2.SectionReader) error {
 	}()
 
 	// read private validator
-	pv, err := privval.LoadFilePV(
-		d.Config.PrivValidator.KeyFile(),
-		d.Config.PrivValidator.StateFile(),
+	pv := privval.LoadFilePV(
+		d.Config.PrivValidatorKeyFile(),
+		d.Config.PrivValidatorStateFile(),
 	)
-	if err != nil {
-		return fmt.Errorf("failed to load private validator: %v", err)
-	}
 
 	eventBus := events.NewBus(d.Logger.With("module", "events"))
 	router := routing.NewRouter(eventBus, nil, d.Logger)

@@ -654,9 +654,9 @@ func initNode(cmd *cobra.Command, args []string) (string, error) {
 		BasePort:         uint64(basePort),
 	}, config, 0)
 
-	config.PrivValidator.Key = "../priv_validator_key.json"
+	config.PrivValidatorKey = "../priv_validator_key.json"
 
-	privValKey, err := accumulated.LoadOrGenerateTmPrivKey(config.PrivValidator.KeyFile())
+	privValKey, err := accumulated.LoadOrGenerateTmPrivKey(config.PrivValidatorKeyFile())
 	DidError = err
 	if err != nil {
 		return "", fmt.Errorf("load/generate private key files, %v", err)

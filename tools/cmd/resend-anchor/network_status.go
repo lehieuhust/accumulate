@@ -16,7 +16,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/rpc/client/http"
-	"github.com/tendermint/tendermint/rpc/coretypes"
+	"github.com/tendermint/tendermint/rpc/core/types"
 	"gitlab.com/accumulatenetwork/accumulate/config"
 	"gitlab.com/accumulatenetwork/accumulate/internal/core"
 	client "gitlab.com/accumulatenetwork/accumulate/pkg/client/api/v2"

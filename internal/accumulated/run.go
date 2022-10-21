@@ -191,13 +191,10 @@ func (d *Daemon) Start() (err error) {
 	}()
 
 	// read private validator
-	d.pv, err = privval.LoadFilePV(
-		d.Config.PrivValidator.KeyFile(),
-		d.Config.PrivValidator.StateFile(),
+	d.pv = privval.LoadFilePV(
+		d.Config.PrivValidatorKeyFile(),
+		d.Config.PrivValidatorStateFile(),
 	)
-	if err != nil {
-		return fmt.Errorf("failed to load private validator: %v", err)
-	}
 
 	d.connectionManager = connections.NewConnectionManager(d.Config, d.Logger, func(server string) (connections.APIClient, error) {
 		return client.New(server)
