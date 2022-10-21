@@ -265,9 +265,9 @@ func (c *FakeTendermint) execute(interval time.Duration) {
 		begin.Header.ProposerAddress = c.address
 		if c.isEvil {
 			//add evidence of something happening to the evidence chain.
-			ev := abci.Evidence{}
+			ev := abci.Misbehavior{}
 			ev.Validator.Address = c.address
-			ev.Type = abci.EvidenceType_LIGHT_CLIENT_ATTACK
+			ev.Type = abci.MisbehaviorType_LIGHT_CLIENT_ATTACK
 			ev.Height = height
 			ev.Time.Add(interval * time.Duration(ev.Height))
 			ev.TotalVotingPower = 1
