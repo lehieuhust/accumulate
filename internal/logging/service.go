@@ -14,7 +14,7 @@ import (
 
 	"github.com/kardianos/service"
 	"github.com/rs/zerolog"
-	"github.com/tendermint/tendermint/libs/log"
+	tmcfg "github.com/tendermint/tendermint/config"
 )
 
 type ServiceLogger struct {
@@ -36,12 +36,12 @@ func NewServiceLogger(svc service.Service, format string) (*ServiceLogger, error
 	}
 
 	switch strings.ToLower(format) {
-	case log.LogFormatPlain, log.LogFormatText:
+	case tmcfg.LogFormatPlain, "text":
 		logger.buf = new(bytes.Buffer)
 		logger.mu = new(sync.Mutex)
 		logger.fmt = newConsoleWriter(logger.buf)
 
-	case log.LogFormatJSON:
+	case tmcfg.LogFormatJSON:
 
 	default:
 		return nil, fmt.Errorf("unsupported log format: %s", format)

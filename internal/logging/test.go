@@ -14,6 +14,7 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/require"
+	tmcfg "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -43,10 +44,10 @@ func TestLogWriter(t TB) func(string) (io.Writer, error) {
 	return func(format string) (io.Writer, error) {
 		var w io.Writer = &testLogger{Test: t}
 		switch strings.ToLower(format) {
-		case log.LogFormatPlain, log.LogFormatText:
+		case tmcfg.LogFormatPlain, "text":
 			w = newConsoleWriter(w)
 
-		case log.LogFormatJSON:
+		case tmcfg.LogFormatJSON:
 
 		default:
 			t.Fatalf("Unsupported log format: %s", format)
