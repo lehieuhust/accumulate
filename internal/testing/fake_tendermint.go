@@ -426,12 +426,12 @@ func (c *FakeTendermint) BroadcastTxSync(ctx context.Context, tx types.Tx) (*cty
 	}
 
 	return &ctypes.ResultBroadcastTx{
-		Code:         st.CheckResult.Code,
-		Data:         st.CheckResult.Data,
-		Log:          st.CheckResult.Log,
-		Codespace:    st.CheckResult.Codespace,
-		MempoolError: st.CheckResult.MempoolError,
-		Hash:         st.Hash[:],
+		Code:      st.CheckResult.Code,
+		Data:      st.CheckResult.Data,
+		Log:       st.CheckResult.Log,
+		Codespace: st.CheckResult.Codespace,
+		// MempoolError: st.CheckResult.MempoolError,
+		Hash: st.Hash[:],
 	}, nil
 }
 
