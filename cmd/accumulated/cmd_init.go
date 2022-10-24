@@ -317,11 +317,11 @@ func initNodeFromSeedProxy(cmd *cobra.Command, args []string) (int, *cfg.Config,
 			return 0, nil, nil, fmt.Errorf("failed to create Tendermint client for %s, %v", u.String(), err)
 		}
 
-		peerStatus, err := peerClient.Status(context.Background())
-		if err != nil {
-			warnf("ignoring peer: not healthy %s", u.String())
-			continue
-		}
+		// peerStatus, err := peerClient.Status(context.Background())
+		// if err != nil {
+		// 	warnf("ignoring peer: not healthy %s", u.String())
+		// 	continue
+		// }
 
 		lastHealthyTmPeer = peerClient
 
@@ -336,15 +336,15 @@ func initNodeFromSeedProxy(cmd *cobra.Command, args []string) (int, *cfg.Config,
 			return 0, nil, nil, fmt.Errorf("failed to create accumulate client for %s, %v", u.String(), err)
 		}
 
-		//if we have a healthy node with a matching id, add it as a bootstrap peer
-		if config.P2P.BootstrapPeers != "" {
-			config.P2P.BootstrapPeers += ","
-		}
-		u, err = cfg.OffsetPort(addr, int(resp.BasePort), int(cfg.PortOffsetTendermintP2P))
-		if err != nil {
-			return 0, nil, nil, err
-		}
-		config.P2P.BootstrapPeers += peerStatus.NodeInfo.NodeID.AddressString(u.String())
+		// //if we have a healthy node with a matching id, add it as a bootstrap peer
+		// if config.P2P.BootstrapPeers != "" {
+		// 	config.P2P.BootstrapPeers += ","
+		// }
+		// u, err = cfg.OffsetPort(addr, int(resp.BasePort), int(cfg.PortOffsetTendermintP2P))
+		// if err != nil {
+		// 	return 0, nil, nil, err
+		// }
+		// config.P2P.BootstrapPeers += peerStatus.NodeInfo.NodeID.AddressString(u.String())
 	}
 
 	if lastHealthyAccPeer == nil || lastHealthyTmPeer == nil {
@@ -455,53 +455,53 @@ func initNodeFromPeer(cmd *cobra.Command, args []string) (int, *cfg.Config, *typ
 	}
 
 	config := cfg.Default(description.Network.Id, description.NetworkType, getNodeTypeFromFlag(), description.PartitionId)
-	config.P2P.BootstrapPeers = fmt.Sprintf("%s@%s:%d", status.NodeInfo.NodeID, netAddr, netPort+int(cfg.PortOffsetTendermintP2P))
+	config.P2P.PersistentPeers = fmt.Sprintf("%s@%s:%d", status.NodeInfo.DefaultNodeID, netAddr, netPort+int(cfg.PortOffsetTendermintP2P))
 
-	//otherwise make the best out of what we have to establish our bootstrap peers
-	netInfo, err := tmClient.NetInfo(context.Background())
-	checkf(err, "failed to get network info from node")
+	// //otherwise make the best out of what we have to establish our bootstrap peers
+	// netInfo, err := tmClient.NetInfo(context.Background())
+	// checkf(err, "failed to get network info from node")
 
-	for _, peer := range netInfo.Peers {
-		u, err := url.Parse(peer.URL)
-		checkf(err, "failed to parse url from network info %s", peer.URL)
+	// for _, peer := range netInfo.Peers {
+	// 	u, err := url.Parse(peer.URL)
+	// 	checkf(err, "failed to parse url from network info %s", peer.URL)
 
-		port, err := strconv.ParseInt(u.Port(), 10, 64)
-		checkf(err, "failed to parse port for peer: %q", u.Port())
+	// 	port, err := strconv.ParseInt(u.Port(), 10, 64)
+	// 	checkf(err, "failed to parse port for peer: %q", u.Port())
 
-		clientUrl := fmt.Sprintf("tcp://%s:%d", u.Hostname(), port+int64(cfg.PortOffsetTendermintRpc))
+	// 	clientUrl := fmt.Sprintf("tcp://%s:%d", u.Hostname(), port+int64(cfg.PortOffsetTendermintRpc))
 
-		if !flagInitNode.AllowUnhealthyPeers {
-			//check the health of the peer
-			peerClient, err := rpchttp.New(clientUrl, "/websocket")
-			checkf(err, "failed to create Tendermint client for %s", u.String())
+	// 	if !flagInitNode.AllowUnhealthyPeers {
+	// 		//check the health of the peer
+	// 		peerClient, err := rpchttp.New(clientUrl, "/websocket")
+	// 		checkf(err, "failed to create Tendermint client for %s", u.String())
 
-			peerStatus, err := peerClient.Status(context.Background())
-			if err != nil {
-				warnf("ignoring peer: not healthy %s", clientUrl)
-				continue
-			}
+	// 		peerStatus, err := peerClient.Status(context.Background())
+	// 		if err != nil {
+	// 			warnf("ignoring peer: not healthy %s", clientUrl)
+	// 			continue
+	// 		}
 
-			statBytes, err := peerStatus.NodeInfo.NodeID.Bytes()
-			if err != nil {
-				warnf("ignoring healthy peer %s because peer id is invalid", u.String())
-				continue
-			}
+	// 		statBytes, err := peerStatus.NodeInfo.NodeID.Bytes()
+	// 		if err != nil {
+	// 			warnf("ignoring healthy peer %s because peer id is invalid", u.String())
+	// 			continue
+	// 		}
 
-			peerBytes, err := peer.ID.Bytes()
-			if err != nil {
-				warnf("ignoring peer %s because node id is not valid", u.String())
-				continue
-			}
+	// 		peerBytes, err := peer.ID.Bytes()
+	// 		if err != nil {
+	// 			warnf("ignoring peer %s because node id is not valid", u.String())
+	// 			continue
+	// 		}
 
-			if !bytes.Equal(statBytes, peerBytes) {
-				warnf("ignoring stale peer %s", u.String())
-				continue
-			}
-		}
+	// 		if !bytes.Equal(statBytes, peerBytes) {
+	// 			warnf("ignoring stale peer %s", u.String())
+	// 			continue
+	// 		}
+	// 	}
 
-		//if we have a healthy node with a matching id, add it as a bootstrap peer
-		config.P2P.BootstrapPeers += "," + u.String()
-	}
+	// 	//if we have a healthy node with a matching id, add it as a bootstrap peer
+	// 	config.P2P.BootstrapPeers += "," + u.String()
+	// }
 
 	config.Accumulate.Describe = cfg.Describe{
 		NetworkType: description.NetworkType, PartitionId: description.PartitionId,
