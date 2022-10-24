@@ -26,7 +26,10 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 	tmlog "github.com/tendermint/tendermint/libs/log"
 	service2 "github.com/tendermint/tendermint/libs/service"
+	tmnode "github.com/tendermint/tendermint/node"
+	"github.com/tendermint/tendermint/p2p"
 	"github.com/tendermint/tendermint/privval"
+	"github.com/tendermint/tendermint/proxy"
 	tmclient "github.com/tendermint/tendermint/rpc/client"
 	"github.com/tendermint/tendermint/rpc/client/local"
 	"gitlab.com/accumulatenetwork/accumulate"
@@ -196,6 +199,11 @@ func (d *Daemon) Start() (err error) {
 		d.Config.PrivValidatorStateFile(),
 	)
 
+	nodeKey, err := p2p.LoadNodeKey(d.Config.NodeKeyFile())
+	if err != nil {
+		return fmt.Errorf("failed to load node key: %v", err)
+	}
+
 	d.connectionManager = connections.NewConnectionManager(d.Config, d.Logger, func(server string) (connections.APIClient, error) {
 		return client.New(server)
 	})
@@ -233,10 +241,20 @@ func (d *Daemon) Start() (err error) {
 	})
 
 	// Create node
-	d.node, err = node.New(d.Config, app, d.Logger)
+	tmn, err := tmnode.NewNode(
+		&d.Config.Config,
+		d.pv,
+		nodeKey,
+		proxy.NewLocalClientCreator(app),
+		tmnode.DefaultGenesisDocProviderFunc(&d.Config.Config),
+		tmnode.DefaultDBProvider,
+		tmnode.DefaultMetricsProvider(d.Config.Instrumentation),
+		d.Logger,
+	)
 	if err != nil {
 		return fmt.Errorf("failed to initialize node: %v", err)
 	}
+	d.node = &node.Node{Node: tmn, Config: d.Config, ABCI: app}
 
 	// Start node
 	// TODO Feed Tendermint logger to service logger
@@ -265,14 +283,7 @@ func (d *Daemon) Start() (err error) {
 	})
 
 	// Create a local client
-	lnode, ok := d.node.Service.(local.NodeService)
-	if !ok {
-		return fmt.Errorf("node is not a local node service")
-	}
-	d.localTm, err = local.New(lnode)
-	if err != nil {
-		return fmt.Errorf("failed to create local node client: %v", err)
-	}
+	d.localTm = local.New(d.node.Node)
 
 	if d.Config.Accumulate.API.DebugJSONRPC {
 		jsonrpc2.DebugMethodFunc = true
