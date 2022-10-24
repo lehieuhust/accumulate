@@ -60,7 +60,7 @@ func submit(ctx context.Context, logger log.Logger, connMgr connections.Connecti
 			r2.Code = r1.Code
 			r2.Data = r1.Data
 			r2.Log = r1.Log
-			r2.MempoolError = r1.MempoolError
+			// r2.MempoolError = r1.MempoolError
 			return r2, nil
 		}
 
